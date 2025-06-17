@@ -45,7 +45,7 @@
       $scope.submitOrder = function () {
         const order = $scope.dishes
           .filter(d => d.count > 0)
-          .map(d => ({ name: d.name, count: d.count }));
+          .map(d => ({ name: d.name, count: d.count, price: d.price }))
 
         if (order.length === 0) {
           alert("Выберите хотя бы одно блюдо");
