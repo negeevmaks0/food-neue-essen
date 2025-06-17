@@ -14,19 +14,19 @@
 </head>
 <body ng-controller="AdminController" class="bg-gray-900 text-white p-6 font-sans">
 
-  <h1 class="text-2xl mb-4">Добавить блюдо</h1>
+  <h1 class="text-2xl mb-4">Додати блюдо</h1>
 
   <div class="space-y-2 mb-6">
-    <input ng-model="newDish.name" placeholder="Название блюда"
+    <input ng-model="newDish.name" placeholder="Назва блюда"
       class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white" />
 
-    <input ng-model="newDish.price" placeholder="Цена (текстом или числом)"
+    <input ng-model="newDish.price" placeholder="В яку ціну (текстом чи числом)"
       class="w-full p-2 bg-gray-800 border border-gray-700 rounded text-white" />
 
     <label class="block w-full cursor-pointer bg-gray-800 border border-gray-700 rounded text-center py-2 hover:bg-gray-700 transition relative overflow-hidden">
-      <span class="block">Загрузить фото блюда</span>
+      <span class="block">Завантажити фото блюда</span>
       <div ng-if="newDish.image" class="mt-2">
-        <img ng-src="{{newDish.image}}" alt="Превью" class="w-24 h-24 object-cover rounded border border-gray-700" />
+        <img ng-src="{{newDish.image}}" alt="Превю" class="w-24 h-24 object-cover rounded border border-gray-700" />
       </div>
 
       <input type="file" accept="image/*"
@@ -35,11 +35,11 @@
     </label>
 
     <button ng-click="addDish()"
-      class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full mt-2">Добавить блюдо</button>
+      class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full mt-2">Додати смаколик</button>
   </div>
 
-  <h2 class="text-xl mb-2">Текущее меню:</h2>
-  <div ng-if="dishes.length === 0" class="text-gray-400">Нет добавленных блюд</div>
+  <h2 class="text-xl mb-2">Поточне меню:</h2>
+  <div ng-if="dishes.length === 0" class="text-gray-400">Нема доданих страв...</div>
 
   <div ng-repeat="dish in dishes track by $index"
        class="relative bg-gray-800 p-4 rounded-lg mb-3 group hover:shadow-xl transition">
