@@ -45,22 +45,23 @@
       $scope.submitOrder = function () {
         const order = $scope.dishes
           .filter(d => d.count > 0)
-          .map(d => ({ name: d.name, count: d.count, price: d.price }))
-
+          .map(d => ({
+            name: d.name,
+            count: d.count,
+            price: d.price // 👈 Обязательно включаем
+          }));
+      
         if (order.length === 0) {
           alert("Выберите хотя бы одно блюдо");
           return;
         }
-
+      
         const tg = window.Telegram.WebApp;
-        tg.sendData(JSON.stringify(order)); // Отправляем заказ
-
-        // Сброс количества
+        tg.sendData(JSON.stringify(order));
+      
+        // Очистить корзину
         $scope.dishes.forEach(d => d.count = 0);
         $scope.$apply();
-
-        // Закрываем WebApp (если нужно)
-        tg.close();
       };
     });
   </script>
