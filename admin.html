@@ -5,12 +5,6 @@
   <title>Админ-панель</title>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    /* Скрыть настоящий input для загрузки файла */
-    .file-input {
-      @apply hidden;
-    }
-  </style>
 </head>
 <body ng-controller="AdminController" class="bg-gray-900 text-white p-6 font-sans">
 
@@ -51,7 +45,6 @@
       </div>
     </div>
 
-    <!-- Кнопка удаления при наведении -->
     <button ng-click="deleteDish($index)"
             class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs">
       Удалить
@@ -60,21 +53,68 @@
 
   <script>
     angular.module("adminApp", []).controller("AdminController", function ($scope) {
-      $scope.dishes = JSON.parse(localStorage.getItem('dishes') || '[]');
+      $scope.dishes = [];
       $scope.newDish = {};
+
+      const GITHUB_TOKEN = "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";
+      const USERNAME = "negeevmaks0";
+      const REPO = "food-neue-essen";
+      const FILE_PATH = "menu.json";
+
+      const headers = {
+        "Authorization": "token " + GITHUB_TOKEN,
+        "Accept": "application/vnd.github.v3+json"
+      };
+
+      // Загрузка меню с GitHub
+      fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FILE_PATH}`, {
+        headers
+      })
+        .then(res => res.json())
+        .then(data => {
+          $scope.sha = data.sha;
+          const content = atob(data.content.replace(/\n/g, ""));
+          $scope.dishes = JSON.parse(content);
+          $scope.$apply();
+        })
+        .catch(err => {
+          console.error("Помилка при завантаженні:", err);
+          alert("Помилка при завантаженні меню з GitHub");
+        });
 
       $scope.uploadPhoto = function (event) {
         const input = event.target;
         const reader = new FileReader();
         reader.onload = function (e) {
-          $scope.$apply(function () {
+          $scope.$apply(() => {
             $scope.newDish.image = e.target.result;
-            input.value = null; // <-- здесь сброс file input
+            input.value = null;
           });
         };
         reader.readAsDataURL(input.files[0]);
       };
 
+      function saveToGitHub() {
+        const newContent = btoa(JSON.stringify($scope.dishes, null, 2));
+        fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FILE_PATH}`, {
+          method: "PUT",
+          headers,
+          body: JSON.stringify({
+            message: "📝 Оновлено меню через адмінку",
+            content: newContent,
+            sha: $scope.sha
+          })
+        })
+          .then(res => res.json())
+          .then(data => {
+            $scope.sha = data.content.sha;
+            console.log("Збережено на GitHub");
+          })
+          .catch(err => {
+            console.error("Помилка при збереженні:", err);
+            alert("Не вдалося зберегти меню на GitHub");
+          });
+      }
 
       $scope.addDish = function () {
         if (!$scope.newDish.name || !$scope.newDish.price) return;
@@ -83,14 +123,13 @@
           price: $scope.newDish.price,
           image: $scope.newDish.image || null
         });
-        localStorage.setItem('dishes', JSON.stringify($scope.dishes));
         $scope.newDish = {};
-        event.target.value = null; // сброс input[type=file]
+        saveToGitHub();
       };
 
       $scope.deleteDish = function (index) {
         $scope.dishes.splice(index, 1);
-        localStorage.setItem('dishes', JSON.stringify($scope.dishes));
+        saveToGitHub();
       };
     });
   </script>
