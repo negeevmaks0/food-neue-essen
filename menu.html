@@ -45,14 +45,21 @@
       $scope.submitOrder = function () {
         const order = $scope.dishes
           .filter(d => d.count > 0)
-          .map(d => ({ name: d.name, count: d.count, price: d.price, image: d.image }))
+          .map(d => ({ name: d.name, count: d.count, price: d.price, image: d.image }));
       
         if (order.length === 0) {
           alert("Выберите хотя бы одно блюдо");
           return;
         }
       
-        const tg = window.Telegram.WebApp;
+        const tg = window.Telegram?.WebApp;
+        if (!tg) {
+          alert("Telegram WebApp не инициализирован!");
+          console.error("Telegram WebApp не доступен");
+          return;
+        }
+      
+        console.log("Отправка заказа:", order);
         tg.sendData(JSON.stringify(order));
       
         // Очистить корзину
