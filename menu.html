@@ -10,7 +10,7 @@
 <body ng-controller="MenuController" class="bg-gray-900 text-white p-4 font-sans">
   <h1 class="text-2xl mb-4">Меню</h1>
 
-  <div ng-if="dishes.length === 0" class="text-gray-400">Пока что пусто.</div>
+  <div ng-if="dishes.length === 0" class="text-gray-400">Як миша повісилась..</div>
 
   <div ng-repeat="dish in dishes track by $index"
        class="bg-gray-800 p-4 rounded-lg mb-3 flex justify-between items-center">
@@ -48,18 +48,18 @@
           .map(d => ({ name: d.name, count: d.count, price: d.price, image: d.image }));
       
         if (order.length === 0) {
-          alert("Выберите хотя бы одно блюдо");
+          alert("Ні хлоп! Потрібно хоч щось вибрати (а не то засмутиш(((\)");
           return;
         }
       
         const tg = window.Telegram?.WebApp;
         if (!tg) {
-          alert("Telegram WebApp не инициализирован!");
-          console.error("Telegram WebApp не доступен");
+          alert("Telegram WebApp не працює!");
+          console.error("Telegram WebApp не доступний");
           return;
         }
       
-        console.log("Отправка заказа:", order);
+        console.log("Відправка замовлення:", order);
         tg.sendData(JSON.stringify(order));
       
         // Очистить корзину
