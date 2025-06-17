@@ -1,44 +1,66 @@
 <!DOCTYPE html>
 <html lang="ru" ng-app="menuApp" class="dark">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Меню</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body ng-controller="MenuController" class="bg-gray-900 text-white p-6 font-sans">
-
+<body ng-controller="MenuController" class="bg-gray-900 text-white p-4 font-sans">
   <h1 class="text-2xl mb-4">Меню</h1>
 
-  <div ng-repeat="dish in dishes" class="bg-gray-800 p-4 rounded-lg mb-2">
+  <div ng-if="dishes.length === 0" class="text-gray-400">Пока что пусто.</div>
+
+  <div ng-repeat="dish in dishes track by $index"
+       class="bg-gray-800 p-4 rounded-lg mb-3 flex justify-between items-center">
     <div class="flex items-center space-x-4">
-      <img ng-if="dish.image" ng-src="{{dish.image}}" alt="Фото" class="w-16 h-16 object-cover rounded" />
-      <div class="flex-1">
+      <img ng-if="dish.image" ng-src="{{dish.image}}" class="w-16 h-16 object-cover rounded" />
+      <div>
         <p class="text-lg font-semibold">{{dish.name}}</p>
         <p class="text-gray-400">{{dish.price}}</p>
       </div>
-      <button ng-click="addToCart(dish)"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">+</button>
+    </div>
+
+    <div class="flex items-center space-x-2">
+      <button ng-if="dish.count > 0"
+              ng-click="dish.count = dish.count - 1"
+              class="bg-red-600 hover:bg-red-700 text-white px-2 rounded">-</button>
+      <span ng-if="dish.count > 0">{{dish.count}}</span>
+      <button ng-click="dish.count = (dish.count || 0) + 1"
+              class="bg-green-600 hover:bg-green-700 text-white px-2 rounded">+</button>
     </div>
   </div>
 
+  <button ng-click="submitOrder()"
+          class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-lg">
+    Заказать
+  </button>
+
   <script>
     angular.module("menuApp", []).controller("MenuController", function ($scope) {
-      const tg = window.Telegram.WebApp;
-      const mainBtn = tg.MainButton;
-
+      // Загружаем блюда из localStorage (девушка их добавила в админке)
       $scope.dishes = JSON.parse(localStorage.getItem('dishes') || '[]');
-      $scope.cart = [];
 
-      mainBtn.setText("Заказать");
-      mainBtn.onClick(() => {
-        tg.sendData(JSON.stringify($scope.cart));
-      });
+      $scope.submitOrder = function () {
+        const order = $scope.dishes
+          .filter(d => d.count > 0)
+          .map(d => ({ name: d.name, count: d.count }));
 
-      $scope.addToCart = function (dish) {
-        $scope.cart.push(dish);
-        if ($scope.cart.length > 0) mainBtn.show();
+        if (order.length === 0) {
+          alert("Выберите хотя бы одно блюдо");
+          return;
+        }
+
+        const tg = window.Telegram.WebApp;
+        tg.sendData(JSON.stringify(order)); // Отправляем заказ
+
+        // Сброс количества
+        $scope.dishes.forEach(d => d.count = 0);
+        $scope.$apply();
+
+        // Закрываем WebApp (если нужно)
+        tg.close();
       };
     });
   </script>
