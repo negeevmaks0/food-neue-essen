@@ -25,6 +25,10 @@
 
     <label class="block w-full cursor-pointer bg-gray-800 border border-gray-700 rounded text-center py-2 hover:bg-gray-700 transition relative overflow-hidden">
       <span class="block">Загрузить фото блюда</span>
+      <div ng-if="newDish.image" class="mt-2">
+        <img ng-src="{{newDish.image}}" alt="Превью" class="w-24 h-24 object-cover rounded border border-gray-700" />
+      </div>
+
       <input type="file" accept="image/*"
              class="absolute inset-0 opacity-0 cursor-pointer"
              onchange="angular.element(this).scope().uploadPhoto(event)">
@@ -60,14 +64,17 @@
       $scope.newDish = {};
 
       $scope.uploadPhoto = function (event) {
+        const input = event.target;
         const reader = new FileReader();
         reader.onload = function (e) {
           $scope.$apply(function () {
             $scope.newDish.image = e.target.result;
+            input.value = null; // <-- здесь сброс file input
           });
         };
-        reader.readAsDataURL(event.target.files[0]);
+        reader.readAsDataURL(input.files[0]);
       };
+
 
       $scope.addDish = function () {
         if (!$scope.newDish.name || !$scope.newDish.price) return;
@@ -78,6 +85,7 @@
         });
         localStorage.setItem('dishes', JSON.stringify($scope.dishes));
         $scope.newDish = {};
+        event.target.value = null; // сброс input[type=file]
       };
 
       $scope.deleteDish = function (index) {
