@@ -34,13 +34,24 @@
 
   <button ng-click="submitOrder()"
           class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-lg">
-    Замовити)
+    Заказать
   </button>
 
   <script>
     angular.module("menuApp", []).controller("MenuController", function ($scope) {
-      // Загружаем блюда из localStorage (девушка их добавила в админке)
-      $scope.dishes = JSON.parse(localStorage.getItem('dishes') || '[]');
+      $scope.dishes = [];
+
+      // Загружаем меню из GitHub (публичный доступ)
+      fetch("https://raw.githubusercontent.com/negeevmaks0/food-neue-essen/main/menu.json")
+        .then(res => res.json())
+        .then(data => {
+          $scope.dishes = data;
+          $scope.$apply();
+        })
+        .catch(err => {
+          console.error("Помилка завантаження меню:", err);
+          alert("Помилка при завантаженні меню :(");
+        });
 
       $scope.submitOrder = function () {
         const order = $scope.dishes
@@ -48,7 +59,7 @@
           .map(d => ({ name: d.name, count: d.count, price: d.price, image: d.image }));
       
         if (order.length === 0) {
-          alert("Ні хлоп! Потрібно хоч щось вибрати (а не то засмутиш(((\ )");
+          alert("Ні хлоп! Потрібно хоч щось вибрати (а не то засмутиш(((\)");
           return;
         }
       
