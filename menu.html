@@ -34,7 +34,7 @@
 
   <button ng-click="submitOrder()"
           class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-lg">
-    Заказать
+    Замовити)
   </button>
 
   <script>
@@ -48,7 +48,7 @@
           .map(d => ({ name: d.name, count: d.count, price: d.price, image: d.image }));
       
         if (order.length === 0) {
-          alert("Ні хлоп! Потрібно хоч щось вибрати (а не то засмутиш(((\)");
+          alert("Ні хлоп! Потрібно хоч щось вибрати (а не то засмутиш(((\ )");
           return;
         }
       
