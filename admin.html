@@ -56,7 +56,7 @@
       $scope.dishes = [];
       $scope.newDish = {};
 
-      const GITHUB_TOKEN = "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";
+      const GITHUB_TOKEN = "ТВОЙ_ТОКЕН"; // ⚠️ встав сюда новый токен
       const USERNAME = "negeevmaks0";
       const REPO = "food-neue-essen";
       const FILE_PATH = "menu.json";
@@ -67,14 +67,22 @@
       };
 
       // Загрузка меню с GitHub
-      fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FILE_PATH}`, {
-        headers
-      })
-        .then(res => res.json())
+      fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FILE_PATH}`, { headers })
+        .then(res => {
+          if (res.status === 404) {
+            // если файла нет → создаём пустое меню
+            $scope.dishes = [];
+            $scope.sha = null;
+            $scope.$apply();
+            return null;
+          }
+          return res.json();
+        })
         .then(data => {
+          if (!data) return;
           $scope.sha = data.sha;
           const content = atob(data.content.replace(/\n/g, ""));
-          $scope.dishes = JSON.parse(content);
+          $scope.dishes = JSON.parse(content || "[]");
           $scope.$apply();
         })
         .catch(err => {
@@ -96,23 +104,29 @@
 
       function saveToGitHub() {
         const newContent = btoa(JSON.stringify($scope.dishes, null, 2));
+
         fetch(`https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FILE_PATH}`, {
           method: "PUT",
           headers,
           body: JSON.stringify({
             message: "📝 Оновлено меню через адмінку",
             content: newContent,
-            sha: $scope.sha
+            sha: $scope.sha || undefined // если файла не было → без sha
           })
         })
           .then(res => res.json())
           .then(data => {
-            $scope.sha = data.content.sha;
-            console.log("Збережено на GitHub");
+            if (data.content) {
+              $scope.sha = data.content.sha;
+              console.log("✅ Збережено на GitHub");
+            } else {
+              console.error("GitHub error:", data);
+              alert("❌ Не вдалося зберегти меню");
+            }
           })
           .catch(err => {
             console.error("Помилка при збереженні:", err);
-            alert("Не вдалося зберегти меню на GitHub");
+            alert("❌ Не вдалося зберегти меню на GitHub");
           });
       }
 
